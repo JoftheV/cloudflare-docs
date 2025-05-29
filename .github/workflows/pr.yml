@@ -1,3 +1,4 @@
+[![PR Opened](https://github.com/cloudflare/cloudflare-docs/actions/workflows/pr.yml/badge.svg)](https://github.com/cloudflare/cloudflare-docs/actions/workflows/pr.yml)
 name: PR Opened
 
 # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request_target
@@ -14,3 +15,158 @@ jobs:
       - uses: ./.github/actions/assign-pr
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+                    - name: Setup Node.js environment
+  uses: actions/setup-node@v3.9.1
+  with:
+    # Set always-auth in npmrc.
+    always-auth: # optional, default is false
+    # Version Spec of the version to use. Examples: 12.x, 10.15.1, >=10.15.0.
+    node-version: # optional
+    # File containing the version Spec of the version to use.  Examples: .nvmrc, .node-version, .tool-versions.
+    node-version-file: # optional
+    # Target architecture for Node to use. Examples: x86, x64. Will use system architecture by default.
+    architecture: # optional
+    # Set this option if you want the action to check for the latest available version that satisfies the version spec.
+    check-latest: # optional
+    # Optional registry to set up for auth. Will set the registry in a project level .npmrc and .yarnrc file, and set up auth to read in from env.NODE_AUTH_TOKEN.
+    registry-url: # optional
+    # Optional scope for authenticating against scoped registries. Will fall back to the repository owner when using the GitHub Packages registry (https://npm.pkg.github.com/).
+    scope: # optional
+    # Used to pull node distributions from node-versions. Since there's a default, this is typically not supplied by the user. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting.
+    token: # optional, default is ${{ github.server_url == 'https://github.com' && github.token || '' }}
+    # Used to specify a package manager for caching in the default directory. Supported values: npm, yarn, pnpm.
+    cache: # optional
+    # Used to specify the path to a dependency file: package-lock.json, yarn.lock, etc. Supports wildcards or a list of file names for caching multiple dependencies.
+    cache-dependency-path: # optional
+
+    Customizing when workflow runs are triggered
+Set your workflow to run on push events to the main and release/* branches
+
+on:
+  push:
+    branches:
+    - main
+    - release/*
+Set your workflow to run on pull_request events that target the main branch
+
+on:
+  pull_request:
+    branches:
+    - main
+Set your workflow to run every day of the week from Monday to Friday at 2:00 UTC
+
+on:
+  schedule:
+  - cron: "0 2 * * 1-5"
+
+
+            steps:
+- uses: actions/download-artifact@v4
+  with:
+    name: my-artifact
+- name: Display structure of downloaded files
+  run: ls -R
+
+  steps:
+- uses: actions/download-artifact@v4
+  with:
+    name: my-artifact
+    path: your/destination/dir
+- name: Display structure of downloaded files
+  run: ls -R your/destination/dir
+
+  steps:
+- uses: actions/download-artifact@v4
+  with:
+    artifact-ids: 12345
+- name: Display structure of downloaded files
+  run: ls -R
+
+  steps:
+- uses: actions/download-artifact@v4
+  with:
+    artifact-ids: 12345,67890
+    path: path/to/artifacts
+- name: Display structure of downloaded files
+  run: ls -R path/to/artifacts
+
+  etc/usr/artifacts/
+    Artifact-A/
+        ... contents of Artifact-A
+    Artifact-B/
+        ... contents of Artifact-B
+
+        steps:
+- uses: actions/download-artifact@v4
+- name: Display structure of downloaded files
+  run: ls -R
+
+  steps:
+- uses: actions/download-artifact@v4
+  with:
+    path: path/to/artifacts
+- name: Display structure of downloaded files
+  run: ls -R path/to/artifacts
+
+  steps:
+- uses: actions/download-artifact@v4
+  with:
+    path: path/to/artifacts
+    merge-multiple: true
+- name: Display structure of downloaded files
+  run: ls -R path/to/artifacts
+
+  path/to/artifacts/
+    ... contents of Artifact-A
+    ... contents of Artifact-B
+
+    jobs:
+  upload:
+    strategy:
+      matrix:
+        runs-on: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+    - name: Create a File
+      run: echo "hello from ${{ matrix.runs-on }}" > file-${{ matrix.runs-on }}.txt
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: my-artifact-${{ matrix.runs-on }}
+        path: file-${{ matrix.runs-on }}.txt
+  download:
+    needs: upload
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download All Artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: my-artifact
+        pattern: my-artifact-*
+        merge-multiple: true
+    - run: ls -R my-artifact
+
+    my-artifact/
+  file-macos-latest.txt
+  file-ubuntu-latest.txt
+  file-windows-latest.txt
+
+  steps:
+- uses: actions/download-artifact@v4
+  with:
+    name: my-other-artifact
+    github-token: ${{ secrets.GH_PAT }} # token with actions:read permissions on target repo
+    repository: actions/toolkit
+    run-id: 1234
+
+    - name: 'Tar files'
+  run: tar -cvf my_files.tar /path/to/my/directory
+
+- name: 'Upload Artifact'
+  uses: actions/upload-artifact@v4
+  with:
+    name: my-artifact
+    path: my_files.tar
+
+    
